@@ -14,10 +14,12 @@ public interface CommandVisitor<TArg, TResult> {
 
 	TResult visitLetCommand(LetCommand ast, TArg arg);
 
-	TResult visitSequentialCommand(SequentialCommand ast, TArg arg);
-
-	TResult visitWhileCommand(WhileCommand ast, TArg arg);
+    TResult visitLoopWhileCommand(LoopWhileCommand ast, TArg arg);
 
     TResult visitRepeatCommand(RepeatCommand ast, TArg arg);
+
+    TResult visitSequentialCommand(SequentialCommand ast, TArg arg);
+
+	TResult visitWhileCommand(WhileCommand ast, TArg arg);
 
 }

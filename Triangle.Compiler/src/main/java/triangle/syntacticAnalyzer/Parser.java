@@ -348,6 +348,18 @@ public class Parser {
         }
         break;
 
+        case LOOP: {
+            acceptIt();
+            Command cAST1 = parseSingleCommand();
+            accept(Token.Kind.WHILE);
+            Expression eAST = parseExpression();
+            accept(Token.Kind.DO);
+            Command cAST2 = parseSingleCommand();
+            finish(commandPos);
+            commandAST = new LoopWhileCommand(cAST1, eAST, cAST2, commandPos);
+        }
+        break;
+
             case SEMICOLON:
 		case END:
 		case ELSE:

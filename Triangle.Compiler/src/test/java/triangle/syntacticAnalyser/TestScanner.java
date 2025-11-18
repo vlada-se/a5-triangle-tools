@@ -89,7 +89,7 @@ public class TestScanner {
 
     @Test
     public void testLoopWhile() {
-        compileExpectFailure("/loopwhile.tri");
+        compileExpectSuccess("/loopwhile.tri");
     }
 
 

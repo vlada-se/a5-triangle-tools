@@ -148,6 +148,27 @@ public final class Encoder implements ActualParameterVisitor<Frame, Integer>,
 		return null;
 	}
 
+    @Override
+    public Void visitLoopWhileCommand(LoopWhileCommand ast, Frame frame) {
+        var loopAddr = emitter.getNextInstrAddr();
+        ast.C1.visit(this, frame);
+        ast.E.visit(this, frame);
+        var exitJump = emitter.emit(OpCode.JUMPIF, Machine.falseRep, Register.CB, 0);
+        ast.C2.visit(this, frame);
+        emitter.emit(OpCode.JUMP, 0, Register.CB, loopAddr);
+        emitter.patch(exitJump);
+        return null;
+    }
+
+    @Override
+    public Void visitRepeatCommand(RepeatCommand ast, Frame frame) {
+        var loopAddr = emitter.getNextInstrAddr();
+        ast.C.visit(this, frame);
+        ast.E.visit(this, frame);
+        emitter.emit(OpCode.JUMPIF, Machine.falseRep, Register.CB, loopAddr);
+        return null;
+    }
+
 	@Override
 	public Void visitSequentialCommand(SequentialCommand ast, Frame frame) {
 		ast.C1.visit(this, frame);
@@ -241,15 +262,6 @@ public final class Encoder implements ActualParameterVisitor<Frame, Integer>,
 		ast.type.visit(this);
 		return ast.RA.visit(this, frame);
 	}
-
-    @Override
-    public Void visitRepeatCommand(RepeatCommand ast, Frame frame) {
-        var loopAddr = emitter.getNextInstrAddr();
-        ast.C.visit(this, frame);
-        ast.E.visit(this, frame);
-        emitter.emit(OpCode.JUMPIF, Machine.falseRep, Register.CB, loopAddr);
-        return null;
-    }
 
 	@Override
 	public Integer visitUnaryExpression(UnaryExpression ast, Frame frame) {
