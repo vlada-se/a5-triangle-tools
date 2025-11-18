@@ -3,78 +3,26 @@ package triangle.optimiser;
 import triangle.StdEnvironment;
 import triangle.abstractSyntaxTrees.AbstractSyntaxTree;
 import triangle.abstractSyntaxTrees.Program;
-import triangle.abstractSyntaxTrees.actuals.ConstActualParameter;
-import triangle.abstractSyntaxTrees.actuals.EmptyActualParameterSequence;
-import triangle.abstractSyntaxTrees.actuals.FuncActualParameter;
-import triangle.abstractSyntaxTrees.actuals.MultipleActualParameterSequence;
-import triangle.abstractSyntaxTrees.actuals.ProcActualParameter;
-import triangle.abstractSyntaxTrees.actuals.SingleActualParameterSequence;
-import triangle.abstractSyntaxTrees.actuals.VarActualParameter;
+import triangle.abstractSyntaxTrees.actuals.*;
 import triangle.abstractSyntaxTrees.aggregates.MultipleArrayAggregate;
 import triangle.abstractSyntaxTrees.aggregates.MultipleRecordAggregate;
 import triangle.abstractSyntaxTrees.aggregates.SingleArrayAggregate;
 import triangle.abstractSyntaxTrees.aggregates.SingleRecordAggregate;
 import triangle.abstractSyntaxTrees.commands.*;
-import triangle.abstractSyntaxTrees.declarations.BinaryOperatorDeclaration;
-import triangle.abstractSyntaxTrees.declarations.ConstDeclaration;
-import triangle.abstractSyntaxTrees.declarations.FuncDeclaration;
-import triangle.abstractSyntaxTrees.declarations.ProcDeclaration;
-import triangle.abstractSyntaxTrees.declarations.SequentialDeclaration;
-import triangle.abstractSyntaxTrees.declarations.UnaryOperatorDeclaration;
-import triangle.abstractSyntaxTrees.declarations.VarDeclaration;
-import triangle.abstractSyntaxTrees.expressions.ArrayExpression;
-import triangle.abstractSyntaxTrees.expressions.BinaryExpression;
-import triangle.abstractSyntaxTrees.expressions.CallExpression;
-import triangle.abstractSyntaxTrees.expressions.CharacterExpression;
-import triangle.abstractSyntaxTrees.expressions.EmptyExpression;
-import triangle.abstractSyntaxTrees.expressions.Expression;
-import triangle.abstractSyntaxTrees.expressions.IfExpression;
-import triangle.abstractSyntaxTrees.expressions.IntegerExpression;
-import triangle.abstractSyntaxTrees.expressions.LetExpression;
-import triangle.abstractSyntaxTrees.expressions.RecordExpression;
-import triangle.abstractSyntaxTrees.expressions.UnaryExpression;
-import triangle.abstractSyntaxTrees.expressions.VnameExpression;
-import triangle.abstractSyntaxTrees.formals.ConstFormalParameter;
-import triangle.abstractSyntaxTrees.formals.EmptyFormalParameterSequence;
-import triangle.abstractSyntaxTrees.formals.FuncFormalParameter;
-import triangle.abstractSyntaxTrees.formals.MultipleFormalParameterSequence;
-import triangle.abstractSyntaxTrees.formals.ProcFormalParameter;
-import triangle.abstractSyntaxTrees.formals.SingleFormalParameterSequence;
-import triangle.abstractSyntaxTrees.formals.VarFormalParameter;
+import triangle.abstractSyntaxTrees.declarations.*;
+import triangle.abstractSyntaxTrees.expressions.*;
+import triangle.abstractSyntaxTrees.formals.*;
 import triangle.abstractSyntaxTrees.terminals.CharacterLiteral;
 import triangle.abstractSyntaxTrees.terminals.Identifier;
 import triangle.abstractSyntaxTrees.terminals.IntegerLiteral;
 import triangle.abstractSyntaxTrees.terminals.Operator;
-import triangle.abstractSyntaxTrees.types.AnyTypeDenoter;
-import triangle.abstractSyntaxTrees.types.ArrayTypeDenoter;
-import triangle.abstractSyntaxTrees.types.BoolTypeDenoter;
-import triangle.abstractSyntaxTrees.types.CharTypeDenoter;
-import triangle.abstractSyntaxTrees.types.ErrorTypeDenoter;
-import triangle.abstractSyntaxTrees.types.IntTypeDenoter;
-import triangle.abstractSyntaxTrees.types.MultipleFieldTypeDenoter;
-import triangle.abstractSyntaxTrees.types.RecordTypeDenoter;
-import triangle.abstractSyntaxTrees.types.SimpleTypeDenoter;
-import triangle.abstractSyntaxTrees.types.SingleFieldTypeDenoter;
-import triangle.abstractSyntaxTrees.types.TypeDeclaration;
-import triangle.abstractSyntaxTrees.visitors.ActualParameterSequenceVisitor;
-import triangle.abstractSyntaxTrees.visitors.ActualParameterVisitor;
-import triangle.abstractSyntaxTrees.visitors.ArrayAggregateVisitor;
-import triangle.abstractSyntaxTrees.visitors.CommandVisitor;
-import triangle.abstractSyntaxTrees.visitors.DeclarationVisitor;
-import triangle.abstractSyntaxTrees.visitors.ExpressionVisitor;
-import triangle.abstractSyntaxTrees.visitors.FormalParameterSequenceVisitor;
-import triangle.abstractSyntaxTrees.visitors.IdentifierVisitor;
-import triangle.abstractSyntaxTrees.visitors.LiteralVisitor;
-import triangle.abstractSyntaxTrees.visitors.OperatorVisitor;
-import triangle.abstractSyntaxTrees.visitors.ProgramVisitor;
-import triangle.abstractSyntaxTrees.visitors.RecordAggregateVisitor;
-import triangle.abstractSyntaxTrees.visitors.TypeDenoterVisitor;
-import triangle.abstractSyntaxTrees.visitors.VnameVisitor;
+import triangle.abstractSyntaxTrees.types.*;
+import triangle.abstractSyntaxTrees.visitors.*;
 import triangle.abstractSyntaxTrees.vnames.DotVname;
 import triangle.abstractSyntaxTrees.vnames.SimpleVname;
 import triangle.abstractSyntaxTrees.vnames.SubscriptVname;
 
-public class ConstantFolder implements ActualParameterVisitor<Void, AbstractSyntaxTree>,
+public class SummaryStatistics implements ActualParameterVisitor<Void, AbstractSyntaxTree>,
 		ActualParameterSequenceVisitor<Void, AbstractSyntaxTree>, ArrayAggregateVisitor<Void, AbstractSyntaxTree>,
 		CommandVisitor<Void, AbstractSyntaxTree>, DeclarationVisitor<Void, AbstractSyntaxTree>,
 		ExpressionVisitor<Void, AbstractSyntaxTree>, FormalParameterSequenceVisitor<Void, AbstractSyntaxTree>,
@@ -83,7 +31,14 @@ public class ConstantFolder implements ActualParameterVisitor<Void, AbstractSynt
 		RecordAggregateVisitor<Void, AbstractSyntaxTree>, TypeDenoterVisitor<Void, AbstractSyntaxTree>,
 		VnameVisitor<Void, AbstractSyntaxTree> {
 
-	@Override
+    int charCounter = 0;
+    int intCounter = 0;
+
+    public void printstats() {
+        System.out.println("Character expressions: " + charCounter + "\nInteger expressions: " + intCounter);
+    }
+
+    @Override
 	public AbstractSyntaxTree visitConstFormalParameter(ConstFormalParameter ast, Void arg) {
 		ast.I.visit(this);
 		ast.T.visit(this);
@@ -300,7 +255,8 @@ public class ConstantFolder implements ActualParameterVisitor<Void, AbstractSynt
 	@Override
 	public AbstractSyntaxTree visitCharacterExpression(CharacterExpression ast, Void arg) {
 		ast.CL.visit(this);
-		return null;
+        charCounter++;
+        return null;
 	}
 
 	@Override
@@ -328,7 +284,8 @@ public class ConstantFolder implements ActualParameterVisitor<Void, AbstractSynt
 
 	@Override
 	public AbstractSyntaxTree visitIntegerExpression(IntegerExpression ast, Void arg) {
-		return ast;
+        intCounter++;
+        return ast;
 	}
 
 	@Override

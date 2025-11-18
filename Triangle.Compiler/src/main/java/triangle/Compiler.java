@@ -23,6 +23,7 @@ import triangle.codeGenerator.Emitter;
 import triangle.codeGenerator.Encoder;
 import triangle.contextualAnalyzer.Checker;
 import triangle.optimiser.ConstantFolder;
+import triangle.optimiser.SummaryStatistics;
 import triangle.syntacticAnalyzer.Parser;
 import triangle.syntacticAnalyzer.Scanner;
 import triangle.syntacticAnalyzer.SourceFile;
@@ -38,6 +39,7 @@ public class Compiler {
 	
 	static boolean showTree = false;
 	static boolean folding = false;
+    static boolean showStats = false;
 
 	private static Scanner scanner;
 	private static Parser parser;
@@ -97,8 +99,14 @@ public class Compiler {
 			if (folding) {
 				theAST.visit(new ConstantFolder());
 			}
-			
-			if (reporter.getNumErrors() == 0) {
+            if (showStats) {
+                SummaryStatistics stats = new SummaryStatistics();
+                theAST.visit(stats);
+                stats.printstats();
+            }
+
+
+            if (reporter.getNumErrors() == 0) {
 				System.out.println("Code Generation ...");
 				encoder.encodeRun(theAST, showingTable); // 3rd pass
 			}
@@ -123,7 +131,7 @@ public class Compiler {
 	public static void main(String[] args) {
 
 		if (args.length < 1) {
-			System.out.println("Usage: tc filename [-o=outputfilename] [tree] [folding]");
+			System.out.println("Usage: tc filename [-o=outputfilename] [tree] [folding] [showStats]");
 			System.exit(1);
 		}
 		
@@ -147,7 +155,10 @@ public class Compiler {
 				objectName = s.substring(3);
 			} else if (sl.equals("folding")) {
 				folding = true;
-			}
+
+            } else if (sl.equals("showstats")) {
+                showStats = true;
+            }
 		}
 	}
 }
