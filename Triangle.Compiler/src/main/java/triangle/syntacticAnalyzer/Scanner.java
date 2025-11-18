@@ -178,7 +178,6 @@ public final class Scanner {
 
 		case '+':
 		case '-':
-		case '*':
 		case '/':
 		case '=':
 		case '<':
@@ -195,14 +194,25 @@ public final class Scanner {
 				takeIt();
 			return Token.Kind.OPERATOR;
 
-		case '\'':
-			takeIt();
-			takeIt(); // the quoted character
-			if (currentChar == '\'') {
-				takeIt();
-				return Token.Kind.CHARLITERAL;
-			} else
-				return Token.Kind.ERROR;
+        case '*':
+            takeIt(); // first '*'
+            if (currentChar == '*') {
+                takeIt();
+                return Token.Kind.DOUBLE_OPERATOR;
+            }
+            while (isOperator(currentChar))
+                takeIt();
+            return Token.Kind.OPERATOR;
+
+
+        case '\'':
+        takeIt();
+        takeIt(); // the quoted character
+        if (currentChar == '\'') {
+            takeIt();
+            return Token.Kind.CHARLITERAL;
+        } else
+            return Token.Kind.ERROR;
 
 		case '.':
 			takeIt();

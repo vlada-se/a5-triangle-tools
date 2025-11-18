@@ -275,14 +275,22 @@ public class Parser {
 		case IDENTIFIER: {
 			Identifier iAST = parseIdentifier();
 			if (currentToken.kind == Token.Kind.LPAREN) {
-				acceptIt();
-				ActualParameterSequence apsAST = parseActualParameterSequence();
-				accept(Token.Kind.RPAREN);
-				finish(commandPos);
-				commandAST = new CallCommand(iAST, apsAST, commandPos);
-
+                acceptIt();
+                ActualParameterSequence apsAST = parseActualParameterSequence();
+                accept(Token.Kind.RPAREN);
+                finish(commandPos);
+                commandAST = new CallCommand(iAST, apsAST, commandPos);
+            } else if (currentToken.kind == Token.Kind.DOUBLE_OPERATOR) {
+                Vname vAST = parseRestOfVname(iAST);
+                accept(Token.Kind.DOUBLE_OPERATOR);
+                IntegerLiteral twoLiteral = new IntegerLiteral("2", commandPos);
+                Expression two = new IntegerExpression(twoLiteral, commandPos);
+                Operator multiply = new Operator("*", commandPos);
+                Expression left = new VnameExpression(vAST, commandPos);
+                Expression eAST = new BinaryExpression(left, multiply, two, commandPos);
+                finish(commandPos);
+                commandAST = new AssignCommand(vAST, eAST, commandPos);
 			} else {
-
 				Vname vAST = parseRestOfVname(iAST);
 				accept(Token.Kind.BECOMES);
 				Expression eAST = parseExpression();
